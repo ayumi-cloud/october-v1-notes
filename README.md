@@ -4,4 +4,4 @@ This is a hard fork of the October Notes that has been edited to better help my 
 
 This repo has lots of changes intended to better help my learning curve.
 
-> For the update proposal we are working on this can be found here: x
+> For the update proposal we are working on, those notes can be found here: x
