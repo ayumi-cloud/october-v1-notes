@@ -12,8 +12,6 @@
 - [Using list filters](#list-filters)
     - [Scope options](#filter-scope-options)
     - [Filter Dependencies](#filter-scope-options)
-    - [Available logical operators for filters](#logical-operators)
-    - [Available custom variables for filters](#custom-variables)
     - [Available scope types](#scope-types)
 - [Extending list behavior](#extend-list-behavior)
     - [Overriding controller action](#overriding-action)
@@ -254,8 +252,6 @@ You can also specify a custom number format, for example currency **$ 99.00**
     created_at:
         label: Date
         type: datetime
-        # Display datetime exactly as it is stored, ignores October's and the backend user's specified timezones.
-        ignoreTimezone: true
 
 You can also specify a custom date format, for example **Thursday 25th of December 1975 02:15:16 PM**:
 
@@ -263,6 +259,15 @@ You can also specify a custom date format, for example **Thursday 25th of Decemb
         label: Date
         type: datetime
         format: l jS \of F Y h:i:s A
+
+You may also wish to set `ignoreTimezone: true` to prevent a timezone conversion between the date that is displayed and the date stored in the database, since by default the backend timezone preference is applied to the display value.
+
+    created_at:
+        label: Date
+        type: datetime
+        ignoreTimezone: true
+
+> **Note:** the `ignoreTimezone` option also applies to other date and time related field types, including `date`, `time`, `timesince` and `timetense`.
 
 <a name="column-date"></a>
 ### Date
@@ -272,8 +277,6 @@ You can also specify a custom date format, for example **Thursday 25th of Decemb
     created_at:
         label: Date
         type: date
-        # Display datetime exactly as it is stored, ignores October's and the backend user's specified timezones.
-        ignoreTimezone: true
 
 <a name="column-time"></a>
 ### Time
@@ -283,8 +286,6 @@ You can also specify a custom date format, for example **Thursday 25th of Decemb
     created_at:
         label: Date
         type: time
-        # Display datetime exactly as it is stored, ignores October's and the backend user's specified timezones.
-        ignoreTimezone: true
 
 <a name="column-timesince"></a>
 ### Time since
@@ -294,8 +295,6 @@ You can also specify a custom date format, for example **Thursday 25th of Decemb
     created_at:
         label: Date
         type: timesince
-        # Display datetime exactly as it is stored, ignores October's and the backend user's specified timezones.
-        ignoreTimezone: true
 
 <a name="column-timetense"></a>
 ### Time tense
@@ -305,8 +304,6 @@ You can also specify a custom date format, for example **Thursday 25th of Decemb
     created_at:
         label: Date
         type: timetense
-        # Display datetime exactly as it is stored, ignores October's and the backend user's specified timezones.
-        ignoreTimezone: true
 
 <a name="column-select"></a>
 ### Select
@@ -495,74 +492,6 @@ In the above example, the `city` scope will refresh when the `country` scope has
 
 > **Note:** Scope dependencies with `type: group` are only supported at this stage.
 
-<a name="logical-operators"></a>
-### Available logical operators for filters
-
-You can use the following logical operators to create filters in October CMS.
-
-Logical Operator | Code
----|---
-Negation of numbers | -
-Logical NOT | !
-Add, String Concatenation | +
-Subtract | -
-Multiply | *
-Divide | /
-Modulus | %
-Logical AND | AND
-Logical OR | OR
-Equal to | ==
-Not equal to | !=
-Greater than | >
-Greater than or equal | >=
-Less than | < 
-Less than or equal | <=
-Not equal to | <>
-
-<a name="custom-variables"></a>
-### Available custom variables for filters
-
-October CMS comes with some built in custom variables with each scope type.
-
-<div class="content-list collection-method-list" markdown="1">
-- [Date](#custom-variables-date)
-- [Date range](#custom-variables-daterange)
-- [Number](#custom-variables-number)
-- [Number range](#custom-variables-numberrange)
-- [Text](#fcustom-variables-text)
-</div>
-
-<a name="custom-variables-date"></a>
-### date
-
-- `:filtered`
-- `:after`
-- `:before`
-
-<a name="custom-variables-daterange"></a>
-### daterange
-
-- `:afterDate`
-- `:after`
-- `:beforeDate`
-- `:before`
-
-<a name="custom-variables-number"></a>
-### number
-
-- `:filtered`
-
-<a name="custom-variables-numberrange"></a>
-### numberrange
-
-- `:min`
-- `:max`
-
-<a name="custom-variables-text"></a>
-### text
-
-- `:value`
-
 <a name="scope-types"></a>
 ### Available scope types
 
@@ -634,7 +563,11 @@ These types can be used to determine how the filter scope should be displayed.
 <a name="filter-date"></a>
 ### Date
 
-`date` - displays a date picker for a single date to be selected.
+`date` - displays a date picker for a single date to be selected. The values available to be used in the conditions property are:
+
+- `:filtered`: The selected date formatted as `Y-m-d`
+- `:before`: The selected date formatted as `Y-m-d 00:00:00`, converted from the backend timezone to the app timezone
+- `:after`: The selected date formatted as `Y-m-d 23:59:59`, converted from the backend timezone to the app timezone
 
     created_at:
         label: Date
@@ -647,7 +580,12 @@ These types can be used to determine how the filter scope should be displayed.
 <a name="filter-daterange"></a>
 ### Date Range
 
-`daterange` - displays a date picker for two dates to be selected as a date range. The conditions parameters are passed as `:before` and `:after`.
+`daterange` - displays a date picker for two dates to be selected as a date range. The values available to be used in the conditions property are:
+
+ - `:before`: The selected "before" date formatted as `Y-m-d H:i:s`
+ - `:beforeDate`: The selected "before" date formatted as `Y-m-d`
+ - `:after`: The selected "after" date formatted as `Y-m-d H:i:s`
+ - `:afterDate`: The selected "after" date formatted as `Y-m-d`
 
     published_at:
         label: Date
@@ -684,7 +622,7 @@ To use default value for Date and Date Range
 <a name="filter-number"></a>
 ### Number
 
-`number` - displays input for a single number to be entered.
+`number` - displays input for a single number to be entered. The value is available to be used in the conditions property as `:filtered`.
 
     age:
         label: Age
@@ -695,7 +633,12 @@ To use default value for Date and Date Range
 <a name="filter-numberrange"></a>
 ### Number Range
 
-`numberrange` - displays inputs for two numbers to be entered as a number range. The conditions parameters are passed as `:min` and `:max`. You may leave either the minimum value blank to search everything up to the maximum value, and vice versa, you may leave the maximum value blank to search everything at least the minimum value.
+`numberrange` - displays inputs for two numbers to be entered as a number range. The values available to be used in the conditions property are:
+
+- `:min`: The minimum value, defaults to -2147483647
+- `:max`: The maximum value, defaults to 2147483647
+
+You may leave either the minimum value blank to search everything up to the maximum value, and vice versa, you may leave the maximum value blank to search everything at least the minimum value.
 
     visitors:
         label: Visitor Count
@@ -847,6 +790,15 @@ You can inject a custom css row class by adding a `listInjectRowClass` method on
             }
         }
     }
+
+A special CSS class `nolink` is available to force a row to be unclickable, even if the `recordUrl` or `recordOnClick` options are defined for the List widget. Returning this class in an event will allow you to make records unclickable - for example, for soft-deleted rows or for informational rows:
+
+        public function listInjectRowClass($record, $value)
+        {
+            if ($record->trashed()) {
+                return 'nolink';
+            }
+        }
 
 <a name="extend-filter-scopes"></a>
 ### Extending filter scopes
